@@ -4,7 +4,7 @@
 Guess my brains are just to old to learn yet another programming language. For my work I need te interact with MS Graph. The no-brainer for this would be using PowerShell or Node-JS. I did manage to do some work with Node-JS using the Axios lib. But the language is just to awkward to me. I would really prefer doing this with Perl. I did do some API work with Perl on our Sonicwall firewall. Used libcurl for that. I guess a simular approach should work for MS Graph. Am making the switch to LWP because this is a more native Perl approach.
 
 ## App registration
-Making daemon like scripts or running from the shell or cron I need an app registration. You can set ione up in Azure. There are lots of site on the internet who walk you through the process of making those, i.e. [Learn.microsoft.com] (https://learn.microsoft.com/en-us/graph/auth-register-app-v2). You will end up with the following:
+Making daemon like scripts or running from the shell or cron I need an app registration. You can set ione up in Azure. There are lots of site on the internet who walk you through the process of making those, i.e. [Learn.microsoft.com](https://learn.microsoft.com/en-us/graph/auth-register-app-v2). You will end up with the following:
 
 - An app_id
 - An app_secret
