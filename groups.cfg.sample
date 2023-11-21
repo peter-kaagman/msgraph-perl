@@ -1,0 +1,7 @@
+
+APP_NAME Groups
+TENANT_ID [tenant_id]
+APP_ID [app_id]
+APP_PASS [app_pass]
+GRAPH_ENDPOINT https://graph.microsoft.com
+LOGIN_ENDPOINT https://login.microsoftonline.com
