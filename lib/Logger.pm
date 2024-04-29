@@ -4,7 +4,7 @@ package Logger;
 
 use strict;
 use warnings;
-use v5.10;
+use v5.11;
 
 use Moose;
 use POSIX qw(strftime);

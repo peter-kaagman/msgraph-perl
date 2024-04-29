@@ -1,7 +1,7 @@
 package MsGraph;
 
 
-use v5.10;
+use v5.11;
 
 use Moose;
 use LWP::UserAgent;
@@ -77,7 +77,7 @@ sub BUILD{ #	{{{1
 		POST => $url,
 		[
 			'Accept'		=>	'*/*',
-			'User-Agent'	=>	'curl/7.55.1',
+			'User-Agent'	=>	'Perl LWP',
 			'Content-Type'	=>	'application/x-www-form-urlencoded'
 		],
 		"grant_type=client_credentials&".

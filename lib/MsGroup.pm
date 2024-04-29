@@ -1,4 +1,4 @@
-package MsGroups;
+package MsGroup;
 
 use v5.10;
 
@@ -10,6 +10,13 @@ use Data::Dumper;
 extends 'MsGraph';
 
 # Attributes {{{1
+has 'id' => ( # {{{2
+	is => 'ro', 
+	isa => 'Str', 
+	required => '1',
+	reader => '_get_id',
+	writer => '_set_id',
+); #}}}
 has 'filter'         => ( # {{{2
 	is => 'rw', 
 	isa => 'Maybe[Str]', 
@@ -25,9 +32,6 @@ has 'select'         => ( # {{{2
 	writer => '_set_select',
 ); #}}}
 # }}}
-
-
-
 
 sub do_fetch { # {{{1
 	my $self = shift;
@@ -49,22 +53,19 @@ sub do_fetch { # {{{1
 	}
 } #	}}}
 
-sub fetch_groups { #	{{{1
+sub fetch_owners { #	{{{1
 	my $self = shift;
-	my @groups;
-	my $url = $self->_get_graph_endpoint . "/v1.0/groups/?";
+	my @owners;
+	my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id."/owners/?";
 	if ($self->_get_filter){
 		$url .= $self->_get_filter."&";
 	}
 	if ($self->_get_select){
 		$url .= $self->_get_select."&";
-		# Fetch only 5 tops for debugging
-		#$url .= "&\$top=5";
 	}
-	#$url .= '$count=true';
-	say "Fetching $url";
-	do_fetch($self,$url, \@groups);
-	return  \@groups;
+	#say "Fetching $url";
+	do_fetch($self,$url, \@owners);
+	return  \@owners;
 	
 }#	}}}
 

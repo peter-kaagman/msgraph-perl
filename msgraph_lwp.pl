@@ -73,7 +73,7 @@ if ($session->_get_access_token){
 		$logger->make_log("$$group{'id'} => $$group{'displayName'}");
 	}
 
-	if ($no_owner){
+	if ($no_owner){ # Geen idee waarom dit hier staat, is geen functionaliteit voor in de lib namelijk
 		$groups = $session->fetch_groups_no_owner($groups);
 		$count = scalar @$groups;
 		$logger->make_log("$count Groups without owner.");

@@ -1,6 +1,6 @@
 package MsUser;
 
-use v5.10;
+use v5.11;
 use Moose;
 use LWP::UserAgent;
 use JSON;
