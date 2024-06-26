@@ -116,8 +116,8 @@ sub group_find_id {
 		#say $json->{'value'}[0]->{'id'};
 		return $json->{'value'}[0]->{'id'};
 	}else{
-		#print Dumper $result;
-		return 0;
+	        say $url;
+		die $result->decoded_content;
 	}
 
 }

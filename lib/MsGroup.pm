@@ -18,7 +18,13 @@ has 'id' => (
 	reader => '_get_id',
 	writer => '_set_id',
 ); #}}}
-
+has 'channel_id' => (
+	is => 'rw', 
+	isa => 'Str', 
+	required => '0',
+	reader => '_get_channel_id',
+	writer => '_set_channel_id',
+); #}}}
 
 #
 # Group related
@@ -157,10 +163,20 @@ sub team_channel_id {
 	my $name = shift;
 	my $url = $self->_get_graph_endpoint . "/v1.0/teams/".$self->_get_id.'/channels';
 	$url .= '/?$select=id,displayName';
-	$url .= '&$filter=displayName eq \'General\'';
+	# Default zoeken naar General
+	if ($name){
+		$url .= '&$filter=displayName eq \''.$name.'\'';
+	}else{
+		$url .= '&$filter=displayName eq \'General\'';
+	}
 	#say $url;
 	my $result = $self->callAPI($url, 'GET');
-	return $result;
+	if ($result->is_success){
+		return (decode_json($result->decoded_content))->{'value'}[0]->{'id'}
+	}else{
+		say $url;
+		die  $result->decoded_content;
+	}
 }
 
 sub team_check_general {
@@ -168,10 +184,10 @@ sub team_check_general {
 	# Het kan voorkomen dat er een probleem met SOP site voor het team.
 	# Dit kun je na 5 minuten herstellen door een GetFilesFolder van General op te vragen.
 	# Om dit te kunnen doen heb je wel het ID van het kanaal general nodig
-	my $general_id = $self->team_channel_id('General');
-	if ($general_id->is_success){
+	my $general_id = $self->team_channel_id();
+	if ($general_id){
 		my $url = $self->_get_graph_endpoint . "/v1.0/teams/".$self->_get_id;
-		$url .= "/channels/".(decode_json($general_id->decoded_content))->{'value'}[0]->{'id'}."/filesFolder";
+		$url .= "/channels/$general_id/filesFolder";
 		my $result = $self->callAPI($url, 'GET');
 		print Dumper $result;
 		return $result;
@@ -188,6 +204,7 @@ sub team_remove_member{
 	my $result = $self->callAPI($url, 'DELETE');
 	return $result;	
 }
+
 #
 # Class related
 #
