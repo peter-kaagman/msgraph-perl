@@ -127,10 +127,12 @@ sub  getToken {
 
 sub BUILD{ #	{{{1
 	my $self = shift;
+	#say "Dit is MsGraph";
 	# Alleen een token ophalen als die er nog niet is
 	if (! $self->_get_access_token){
 		$self->getToken;
 	}
+	inner();
 	#say "token: " . $self->_get_access_token;
 	
 	
@@ -197,7 +199,8 @@ sub fetch_list {
 	my $url = shift;							# get the URL from the function call
 	my $found = shift;							# get the array reference which holds the result
 	my $result = $self->callAPI($url, 'GET');	# do_fetch calls callAPI to do the HTTP request
-	#print Dumper $result;
+	#say $url;
+	#print Dumper $result->decoded_content;
 	# Process if rc = 200
 	if ($result->is_success){
 		my $reply =  decode_json($result->decoded_content);
@@ -205,16 +208,18 @@ sub fetch_list {
 			push @{$found}, $el;
 		}
 		# do a recursive call if @odata.nextlink is there
-		if ($$reply{'@odata.nextLink'}){
+		if ($reply->{'@odata.nextLink'}){
 			$self->fetch_list($$reply{'@odata.nextLink'}, $found);
 		}
 		#print Dumper $$reply{'value'};
 		#say "returning";
 	}else{
 		# Error handling
-		print Dumper $result;
-		return $result->status_line;
+		say $url;
+		print Dumper $result->decoded_content;
+		return 0;
 	}
+	return 1;
 	#print Dumper $found;
 }
 
