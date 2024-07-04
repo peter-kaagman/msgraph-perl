@@ -59,32 +59,52 @@ sub group_fetch_owners {
 sub group_fetch_members {
 	my $self = shift;							# get a reference to the object itself
 	my @members;								# an array to hold the result
+	my @parameters;
+    push(@parameters,$self->_get_filter) if ($self->_get_filter);
+    push(@parameters,$self->_get_select) if ($self->_get_select);
+    #push(@parameters,'$count=true');
 	# compose an URL
-	my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id."/members/?";
-	# add a filter if needed (not doing any  filtering though)
-	if ($self->_get_filter){
-		$url .= $self->_get_filter."&";
-	}
-	# add a selectif needed, have in fact a select => see object creation
-	if ($self->_get_select){
-		$url .= $self->_get_select;
-	}
-	$url .= '&$count=true';		# adding $count just to be sure
+    my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id."/members/?". join( '&', @parameters);
+	#my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id."/members/?";
+	# # add a filter if needed (not doing any  filtering though)
+	# if ($self->_get_filter){
+	# 	$url .= $self->_get_filter."&";
+	# }
+	# # add a selectif needed, have in fact a select => see object creation
+	# if ($self->_get_select){
+	# 	$url .= $self->_get_select;
+	# }
+	# $url .= '&$count=true';		# adding $count just to be sure
 	$self->fetch_list($url, \@members); 
 	return  \@members; # return a reference to the resul
 	
 }
 
-sub group_addMember {
+sub group_add_member {
 	my $self = shift;
 	my $member_id = shift;
 	my $is_owner = shift;
 	say "Adding $member_id, Owner?: $is_owner"; 
 	my $payload = {
-		'@data.id' => "https://graph.microsoft.com/v1.0/directoryObjects/$member_id"
+		'@odata.id' => "https://graph.microsoft.com/v1.0/users/$member_id"
 	};
 	my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id.'/members/$ref';
 	my $result = $self->callAPI($url,'POST', $payload);
+	if (
+		($result->is_success) &&
+		($is_owner)
+	){
+		$url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id.'/owners/$ref';
+		my $result = $self->callAPI($url,'POST',$payload);
+		if (!$result->is_success){
+			warn("Kan geen owner toevoegen aan ". $self->_get_id);
+			print Dumper decode_json $result->decoded_content;
+		}
+	}else{
+		warn("Kan geen member toevoegen aan ".$self->_get_id);
+		print Dumper $result;
+	}
+
 	return $result;
 }
 
@@ -140,8 +160,10 @@ sub team_bulk_add_members {
 	my $self = shift;
 	my $payload = shift;
 	my $url = $self->_get_graph_endpoint . "/v1.0/teams/".$self->_get_id."/members/add";
-	say $url;
+	say "leden toevoegen: $url";
+	print Dumper $payload;
 	my $result = $self->callAPI($url, 'POST', $payload);
+	print Dumper $result;
 	return $result;
 }
 
@@ -205,10 +227,40 @@ sub team_remove_member{
 	return $result;	
 }
 
+sub team_from_group{
+	my $self = shift;
+	say "Groep ".$self->_get_id." wordt een team";
+	my $payload = {
+		'template@odata.bind' => "https://graph.microsoft.com/v1.0/teamsTemplates('educationClass')",
+  		'group@odata.bind' => "https://graph.microsoft.com/v1.0/groups('" . $self->_get_id . "')"
+
+	};
+	say encode_json $payload;
+	my $url = $self->_get_graph_endpoint . "/v1.0/teams";
+	say $url;
+	# https://learn.microsoft.com/en-us/graph/teams-create-group-and-team
+	my $result = $self->callAPI($url, 'POST', $payload);
+	return $result;
+	#print Dumper $result;
+
+}
+
 #
 # Class related
 #
-
+# Een leerling toevoegen aan een class (team)
+# API Permissions class_add_student: EduRoster.ReadWrite.All
+# _rc 204 succes
+# _rc 400 oa leerling al lid
+# _rc 404 onbekende lln
+sub class_add_student{
+	my $self = shift;
+	my $payload = shift;
+	my $url = $self->_get_graph_endpoint . '/v1.0/education/classes/' . $self->_get_id . '/members/$ref';
+	say $url;
+	my $result = $self->callAPI($url, 'POST', $payload);
+	return $result;
+}
 
 __PACKAGE__->meta->make_immutable;
 42;

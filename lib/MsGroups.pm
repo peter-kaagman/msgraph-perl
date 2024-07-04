@@ -122,6 +122,19 @@ sub group_find_id {
 
 }
 
+sub group_list {
+	my $self = shift;
+	my @groups;
+	my @parameters;
+    push(@parameters,$self->_get_filter) if ($self->_get_filter);
+    push(@parameters,$self->_get_select) if ($self->_get_select);
+    #push(@parameters,'$count=true');
+    
+    my $url = $self->_get_graph_endpoint . "/v1.0/groups/?". join( '&', @parameters);
+    $self->fetch_list($url,\@groups);
+    return \@groups;
+}
+
 
 #
 # Teams related
@@ -225,24 +238,7 @@ sub team_is_archived {
 
 }
 
-sub team_from_group{
-	my $self = shift;
-	my $group_id = shift;
-	say "Groep $group_id wordt een team";
-	my $payload = {
-		'template@odata.bind' => "https://graph.microsoft.com/v1.0/teamsTemplates('educationClass')",
-  		'group@odata.bind' => "https://graph.microsoft.com/v1.0/groups('$group_id')"
 
-	};
-	my $url = $self->_get_graph_endpoint . "/v1.0/teams";
-	my $result = $self->callAPI($url, 'POST', $payload);
-	print Dumper $result;
-	if ($result->is_success){
-		return "Ok";
-	}else{
-		return "RC $result->{'_rc'}: $result->{'_content'}";
-	}
-}
 
 #
 # Class related
@@ -267,7 +263,10 @@ sub classes_fetch{
 		$url .= $self->_get_select."&";
 	}
 	$self->fetch_list($url, \@classes);
-	return  \@classes;}
+	return  \@classes;
+}
+
+
 
 
 __PACKAGE__->meta->make_immutable;

@@ -180,6 +180,7 @@ sub callAPI { # {{{1
 			$header,
 			$data
 		);
+		#say "Payload is  $data";
 	}else{  
 		$r = HTTP::Request->new(
 			$verb => $url,
