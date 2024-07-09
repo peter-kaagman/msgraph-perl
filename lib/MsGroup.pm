@@ -208,15 +208,15 @@ sub team_check_general {
 	# Het kan voorkomen dat er een probleem met SOP site voor het team.
 	# Dit kun je na 5 minuten herstellen door een GetFilesFolder van General op te vragen.
 	# Om dit te kunnen doen heb je wel het ID van het kanaal general nodig
-	my $general_id = $self->team_channel_id();
+	my $general_id = $self->team_channel_id;
 	if ($general_id){
 		my $url = $self->_get_graph_endpoint . "/v1.0/teams/".$self->_get_id;
 		$url .= "/channels/$general_id/filesFolder";
 		my $result = $self->callAPI($url, 'GET');
-		print Dumper $result;
+		#print Dumper $result;
 		return $result;
 	}else{
-		return $general_id;
+		return $general_id; # dit is de fout van team_channel_id
 	}
 }
 
