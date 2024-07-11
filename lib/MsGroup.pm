@@ -80,6 +80,7 @@ sub group_fetch_members {
 	
 }
 
+# Zie issue #6 https://github.com/peter-kaagman/msgraph-perl/issues/6
 sub group_add_member {
 	my $self = shift;
 	my $member_id = shift;
@@ -98,13 +99,12 @@ sub group_add_member {
 		my $result = $self->callAPI($url,'POST',$payload);
 		if (!$result->is_success){
 			warn("Kan geen owner toevoegen aan ". $self->_get_id);
-			print Dumper decode_json $result->decoded_content;
+			#print Dumper (decode_json $result->decoded_content);
 		}
-	}else{
+	}elsif(! $result->is_success){
 		warn("Kan geen member toevoegen aan ".$self->_get_id);
-		print Dumper $result;
+		#print Dumper (decode_json $result->decoded_content);
 	}
-
 	return $result;
 }
 
@@ -150,11 +150,13 @@ sub group_patch {
 # Teammember.ReadWrite.All (ik ga ook leden muteren)
 sub  team_members{
 	my $self = shift;
+	my $name = shift;
 	my @members;
 	my $url = $self->_get_graph_endpoint . "/v1.0/teams/".$self->_get_id."/members/";
 	#$url .= '?$Select=id,roles,'; # Ik kan geen select maken op userId, hoort niet bij het objecttype maar staat wel in het resultaat
 	$self->fetch_list($url, \@members);
-
+	# say "members gevonden $name";
+	# print Dumper \@members;
 	return  \@members;
 }
 
@@ -162,10 +164,10 @@ sub team_bulk_add_members {
 	my $self = shift;
 	my $payload = shift;
 	my $url = $self->_get_graph_endpoint . "/v1.0/teams/".$self->_get_id."/members/add";
-	say "leden toevoegen: $url";
+	#say "leden toevoegen: $url";
 	print Dumper $payload;
 	my $result = $self->callAPI($url, 'POST', $payload);
-	print Dumper $result;
+	#print Dumper $result;
 	return $result;
 }
 
@@ -255,14 +257,35 @@ sub team_from_group{
 # _rc 204 succes
 # _rc 400 oa leerling al lid
 # _rc 404 onbekende lln
-sub class_add_student{
+sub class_add_member{
 	my $self = shift;
-	my $payload = shift;
+	my $user_id = shift;
+	my $role = shift;
+	my $payload = {
+		'@odata.id' => "https://graph.microsoft.com/v1.0/education/users/$user_id",
+		'primaryRole' => $role,
+	};
+
 	my $url = $self->_get_graph_endpoint . '/v1.0/education/classes/' . $self->_get_id . '/members/$ref';
 	say $url;
 	my $result = $self->callAPI($url, 'POST', $payload);
 	return $result;
 }
+
+# EduRoster.ReadWrite.All (ik ga ook leden muteren)
+sub  class_members{
+	my $self = shift;
+	my $name = shift;
+	my @members;
+	my $url = $self->_get_graph_endpoint . "/v1.0/education/classes/".$self->_get_id."/members/";
+	#$url .= '?$Select=id,roles,'; # Ik kan geen select maken op userId, hoort niet bij het objecttype maar staat wel in het resultaat
+	$self->fetch_list($url, \@members);
+	say "members gevonden $name";
+	print Dumper \@members;
+	return  \@members;
+}
+
+
 
 __PACKAGE__->meta->make_immutable;
 42;

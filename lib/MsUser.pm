@@ -8,8 +8,15 @@ use Data::Dumper;
 
 extends 'MsGraph';
 
-# Attributes {{{1
-# }}}
+# Attributes 
+has 'id' => (
+	is => 'ro', 
+	isa => 'Str', 
+	required => '1',
+	reader => '_get_id',
+	writer => '_set_id',
+);
+#
 
 sub fetch_id_by_upn { #	{{{1
 	my $self = shift;
@@ -26,6 +33,16 @@ sub fetch_id_by_upn { #	{{{1
 		return 'onbekend';
 	}
 }#	}}}
+
+sub eduUser_set_role {
+	my $self = shift;
+	my $role = shift;
+	my $payload = {
+		"primaryRole" => $role,
+	};
+    my $url = $self->_get_graph_endpoint . '/v1.0/education/users/'.$self->_get_id;
+	my $result = $self->callAPI($url, 'PATCH', $payload);
+}
 
 __PACKAGE__->meta->make_immutable;
 42;
