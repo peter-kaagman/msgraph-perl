@@ -199,24 +199,17 @@ sub team_dearchive {
 	# mailNick wordt ook aangepast zodat het team niet meer opduikt in een teams listing.
 	my $self = shift;
 	my $team_id = shift;
-	my $team_naam = shift;
+	my $payload = shift;
 	my $url = $self->_get_graph_endpoint . "/v1.0/teams/$team_id/unarchive";
 	my $result = $self->callAPI($url, 'POST');
 	if ($result->is_success){
 		# archiveren is geslaagd => description aanpassen
 		# dit is een PATCH
 		$url = $self->_get_graph_endpoint . "/v1.0/groups/$team_id";
-		my $payload = {
-			"description" => $team_naam,
-			"displayName" => $team_naam,
-			"mailNickname"=> 'EduTeam_'.$team_naam,
-		};
 		my $result = $self->callAPI($url, 'PATCH', $payload);
-		if ($result->is_success){
-			return "Ok";
-		}else{
-			return $result;
-		}
+		return $result;
+	}else{
+		return $result;
 	}
 }
 
@@ -226,11 +219,15 @@ sub team_is_archived {
 	my $url = $self->_get_graph_endpoint . "/v1.0/groups";
 	$url .= '?$select=id';
 	# ToDo Dit is een module => EduTeam hier noemen is niet generiek
-	$url .= "&\$filter=mailNickname eq 'Archived_EduTeam,_$team_naam'";
+	$url .= "&\$filter=mailNickname eq '$team_naam'";
 	my $result = $self->callAPI($url, 'GET');
 	if ($result->is_success){
 		my $content = decode_json($result->decoded_content);
-		return $content->{'value'}[0]->{'id'}
+		if ($content->{'value'}[0]->{'id'}){
+			return $content->{'value'}[0]->{'id'}
+		}else{
+			return 0;
+		}
 	}else{
 		warn $result->message;
 		return 0;
