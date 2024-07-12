@@ -43,14 +43,11 @@ sub group_delete {
 sub group_fetch_owners {
 	my $self = shift;
 	my @owners;
-	my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id."/owners/?";
-	if ($self->_get_filter){
-		$url .= $self->_get_filter."&";
-	}
-	if ($self->_get_select){
-		$url .= $self->_get_select;
-	}
-	#say "Fetching $url";
+	my @parameters;
+    push(@parameters,$self->_get_filter) if ($self->_get_filter);
+    push(@parameters,$self->_get_select) if ($self->_get_select);
+	# compose an URL
+    my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id."/owners/?". join( '&', @parameters);
 	$self->fetch_list($url, \@owners);
 	return  \@owners;
 	
@@ -62,19 +59,8 @@ sub group_fetch_members {
 	my @parameters;
     push(@parameters,$self->_get_filter) if ($self->_get_filter);
     push(@parameters,$self->_get_select) if ($self->_get_select);
-    #push(@parameters,'$count=true');
 	# compose an URL
     my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id."/members/?". join( '&', @parameters);
-	#my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id."/members/?";
-	# # add a filter if needed (not doing any  filtering though)
-	# if ($self->_get_filter){
-	# 	$url .= $self->_get_filter."&";
-	# }
-	# # add a selectif needed, have in fact a select => see object creation
-	# if ($self->_get_select){
-	# 	$url .= $self->_get_select;
-	# }
-	# $url .= '&$count=true';		# adding $count just to be sure
 	$self->fetch_list($url, \@members); 
 	return  \@members; # return a reference to the resul
 	
