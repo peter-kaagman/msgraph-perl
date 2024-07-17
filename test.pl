@@ -48,7 +48,7 @@ foreach my $max (@maxen){
         #print Dumper $teams;
         $par_aantal_teams = scalar @{$teams};
 
-        my $pm = Parallel::ForkManager->new($max); # max 20 processen, aardig zijn
+        my $pm = Parallel::ForkManager->new($max);
 
         # Callback
         $pm->run_on_finish( sub{
