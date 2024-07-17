@@ -169,19 +169,19 @@ sub team_archive {
 	# zijnde gearchiveerd. Een groups heeft die property namelijk niet.
 	# mailNick wordt ook aangepast zodat het team niet meer opduikt in een teams listing.
 	my $self = shift;
-	my $team_id = shift;
-	my $team_naam = shift;
-	my $url = $self->_get_graph_endpoint . "/v1.0/teams/$team_id/archive";
+	my $team = shift;
+	my $prefix = shift;
+	my $url = $self->_get_graph_endpoint . "/v1.0/teams/$team->{'id'}/archive";
 	my $result = $self->callAPI($url, 'POST');
 	if ($result->is_success){
 		# archiveren is geslaagd => description aanpassen
 		# dit is een PATCH
-		$url = $self->_get_graph_endpoint . "/v1.0/groups/$team_id";
+		$url = $self->_get_graph_endpoint . "/v1.0/groups/$team->{'id'}";
 		# ToDo: Dit is een module en er staat EduTeam => niet generiek
 		my $payload = {
-			"description" => 'Archived_'.$team_naam,
-			"displayName" => 'Archived_'.$team_naam,
-			"mailNickname"=> 'Archived_EduTeam_'.$team_naam,
+			"description" => 'Archived_'.$team->{'naam'},
+			"displayName" => 'Archived_'.$team->{'naam'} ,
+			"mailNickname"=> 'Archived_'.$prefix."_".$team->{'naam'},
 		};
 		my $result = $self->callAPI($url, 'PATCH', $payload);
 		if ($result->is_success){
