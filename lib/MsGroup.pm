@@ -71,7 +71,7 @@ sub group_add_member {
 	my $self = shift;
 	my $member_id = shift;
 	my $is_owner = shift;
-	say "Adding $member_id, Owner?: $is_owner"; 
+	#say "Adding $member_id, Owner?: $is_owner"; 
 	my $payload = {
 		'@odata.id' => "https://graph.microsoft.com/v1.0/users/$member_id"
 	};
