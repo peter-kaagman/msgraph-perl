@@ -44,6 +44,32 @@ sub eduUser_set_role {
 	my $result = $self->callAPI($url, 'PATCH', $payload);
 }
 
+sub user_groups {
+	my $self = shift;
+    my @parameters;
+    push(@parameters,$self->_get_filter) if ($self->_get_filter);
+    push(@parameters,$self->_get_select) if ($self->_get_select);
+
+    #my $url = $self->_get_graph_endpoint . '/v1.0/users/'?";
+
+    my $url = $self->_get_graph_endpoint . '/v1.0/users/'. $self->_get_id. '/memberOf/?'. join( '&', @parameters);
+	my @groups;
+	$self->fetch_list($url, \@groups);
+	return \@groups;
+
+}
+
+sub user_update {
+	my $self = shift;
+	my $payload = shift;
+    my @parameters;
+
+    my $url = $self->_get_graph_endpoint . '/v1.0/users/' . $self->_get_id;
+	my $result = $self->callAPI($url,'PATCH',$payload);
+	return $result;
+
+}
+
 __PACKAGE__->meta->make_immutable;
 42;
 # vim: set foldmethod=marker

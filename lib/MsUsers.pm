@@ -22,6 +22,7 @@ sub users_fetch {
     push(@parameters,$self->_get_select) if ($self->_get_select);
     
     my $url = $self->_get_graph_endpoint . "/v1.0/users/?". join( '&', @parameters);
+
     $self->fetch_list($url,\@users);
     return \@users;
 }
@@ -36,4 +37,12 @@ sub fetch_edusers {
     my $url = $self->_get_graph_endpoint . "/v1.0/education/users/?". join( '&', @parameters);
     $self->fetch_list($url,\@users);
     return \@users;
+}
+
+sub user_create {
+    my $self = shift;
+    my $payload = shift;
+    my $url = $self->_get_graph_endpoint . "/v1.0/users";
+    my $result = $self->callAPI($url,'POST',$payload);
+    return $result;
 }

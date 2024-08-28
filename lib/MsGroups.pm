@@ -184,11 +184,12 @@ sub team_archive {
 			"mailNickname"=> 'Archived_'.$prefix."_".$team->{'naam'},
 		};
 		my $result = $self->callAPI($url, 'PATCH', $payload);
-		if ($result->is_success){
-			return "Ok";
-		}else{
-			return $result;
-		}
+		return $result;
+		# if ($result->is_success){
+		# 	return "Ok";
+		# }else{
+		# 	return $result;
+		# }
 	}
 }
 sub team_dearchive {
@@ -230,6 +231,7 @@ sub team_is_archived {
 		}
 	}else{
 		warn $result->message;
+		print Dumper $result;
 		return 0;
 	}
 

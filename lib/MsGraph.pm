@@ -8,6 +8,8 @@ use LWP::UserAgent;
 use JSON;
 use Time::Piece;
 use Data::Dumper;
+use Encode qw(encode decode);
+
 
 # Attributes {{{1
 has 'access_token'   => ( # {{{2
@@ -157,7 +159,7 @@ sub callAPI { # {{{1
 	my $header =	[
 		'Accept'        => '*/*',
 		'Authorization' => "Bearer ".$self->_get_access_token,
-		'Content-Type'  => 'application/json',
+		'Content-Type'  => 'application/json; charset=utf-8 ',
 		'Consistencylevel' => $self->_get_consistencylevel
 		];
 	# Create the request
@@ -220,8 +222,8 @@ sub fetch_list {
 		print Dumper $result->decoded_content;
 		return 0;
 	}
-	return 1;
 	#print Dumper $found;
+	return 1;
 }
 
 

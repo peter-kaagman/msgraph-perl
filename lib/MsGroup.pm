@@ -85,11 +85,11 @@ sub group_add_member {
 		my $result = $self->callAPI($url,'POST',$payload);
 		if (!$result->is_success){
 			warn("Kan geen owner toevoegen aan ". $self->_get_id);
-			#print Dumper (decode_json $result->decoded_content);
+			print Dumper $result;
 		}
 	}elsif(! $result->is_success){
 		warn("Kan geen member toevoegen aan ".$self->_get_id);
-		#print Dumper (decode_json $result->decoded_content);
+		print Dumper  $result;
 	}
 	return $result;
 }
