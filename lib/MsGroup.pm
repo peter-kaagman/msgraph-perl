@@ -185,9 +185,6 @@ sub team_channel_id {
 	my $result = $self->callAPI($url, 'GET');
 	if ($result->is_success){
 		return (decode_json($result->decoded_content))->{'value'}[0]->{'id'}
-	}else{
-		say $url;
-		die  $result->decoded_content;
 	}
 }
 
@@ -219,15 +216,12 @@ sub team_remove_member{
 
 sub team_from_group{
 	my $self = shift;
-	say "Groep ".$self->_get_id." wordt een team";
 	my $payload = {
 		'template@odata.bind' => "https://graph.microsoft.com/v1.0/teamsTemplates('educationClass')",
   		'group@odata.bind' => "https://graph.microsoft.com/v1.0/groups('" . $self->_get_id . "')"
 
 	};
-	say encode_json $payload;
 	my $url = $self->_get_graph_endpoint . "/v1.0/teams";
-	say $url;
 	# https://learn.microsoft.com/en-us/graph/teams-create-group-and-team
 	my $result = $self->callAPI($url, 'POST', $payload);
 	return $result;

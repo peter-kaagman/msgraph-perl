@@ -73,7 +73,29 @@ has 'select'         => (
 	reader => '_get_select',
 	writer => '_set_select',
 ); 
-# issue involved: https://github.com/peter-kaagman/EduTeams/issues/3
+has 'maxretry' => ( # {{{2
+	is => 'ro', 
+	isa => 'Str', 
+	required => '1',
+	default => '4',
+	reader => '_get_maxretry',
+	writer => '_set_maxretry',
+); #}}}
+has 'lasterror' => ( # {{{2
+	is => 'ro', 
+	isa => 'Str', 
+	required => '0',
+	default => '0',
+	reader => '_get_errorstate',
+	writer => '_set_errorstate',
+); #}}}
+has 'lastresult' => ( # {{{2
+	is => 'ro', 
+	isa => 'Str', 
+	required => '0',
+	reader => '_get_lastresult',
+	writer => '_set_lastresult',
+); #}}}
 has 'token_expires'   => ( # {{{2
 	is => 'rw', 
 	isa => 'Str',
@@ -190,10 +212,26 @@ sub callAPI { # {{{1
 		);	
 	}
 	# Let the useragent make the request
-	#print Dumper $r;
-	my $result = $ua->request($r);
-	#print Dumper $result;
-	#return $result->decoded_content;
+	my $try = 0;
+	my $result;
+	# Probeer een aantal malen de request te doen
+	while ($try lt $self->_get_maxretry){
+		$try++;
+		$result = $ua->request($r);
+		# End while if succes
+		# or 404: not found (no retry needed)
+		last if (
+			($result->is_success)||
+			($result->{'_rc'} eq 404)
+		);
+	}
+	# Als we alle tries verbuikt hebben dan kan het nog altijd mislukt zijn
+	# rapporteer dit in het object
+	if (! $result->is_success){
+		say "try $try: $result->{'_rc'} $url ". $result->content unless ($result->{'_rc'} eq 404);
+		$self->_set_errorstate($result->{'_rc'});
+		$self->_set_lastresult($result->content);
+	}
 	return $result;
 } # }}}
 
@@ -201,6 +239,7 @@ sub fetch_list {
 	my $self = shift;							# get a reference to the object
 	my $url = shift;							# get the URL from the function call
 	my $found = shift;							# get the array reference which holds the result
+
 	my $result = $self->callAPI($url, 'GET');	# do_fetch calls callAPI to do the HTTP request
 	#say $url;
 	#print Dumper $result->decoded_content;
@@ -218,9 +257,7 @@ sub fetch_list {
 		#say "returning";
 	}else{
 		# Error handling
-		say $url;
-		print Dumper $result->decoded_content;
-		return 0;
+		die "Fetch_List kon de gegevens niet ophalen: $url"
 	}
 	#print Dumper $found;
 	return 1;

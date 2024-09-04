@@ -163,7 +163,7 @@ sub team_create {
 }
 
 sub team_archive {
-	# Om gegevens verlies te voorkomen worden teams niet verwijdert maar gearchiveerd.
+	# Om gegevens verlies te voorkomen worden teams niet verwijderd maar gearchiveerd.
 	# Archiveren is een async operatie, duurt een eeuwigheid, description daarom ook aan-
 	# passen zodat het archiveren direct duidelijk is en de group ook herkenbaar is als 
 	# zijnde gearchiveerd. Een groups heeft die property namelijk niet.
@@ -193,7 +193,7 @@ sub team_archive {
 	}
 }
 sub team_dearchive {
-	# Om gegevens verlies te voorkomen worden teams niet verwijdert maar gearchiveerd.
+	# Om gegevens verlies te voorkomen worden teams niet verwijderd maar gearchiveerd.
 	# Archiveren is een async operatie, duurt een eeuwigheid, description daarom ook aan-
 	# passen zodat het archiveren direct duidelijk is en de group ook herkenbaar is als 
 	# zijnde gearchiveerd. Een groups heeft die property namelijk niet.
