@@ -27,6 +27,19 @@ sub users_fetch {
     return \@users;
 }
 
+sub users_fetch_deleted {
+    my $self = shift;
+    my @users;
+    my @parameters;
+    push(@parameters,$self->_get_filter) if ($self->_get_filter);
+    push(@parameters,$self->_get_select) if ($self->_get_select);
+    
+    my $url = $self->_get_graph_endpoint . "/v1.0/directory/deletedItems/microsoft.graph.user?". join( '&', @parameters);
+
+    $self->fetch_list($url,\@users);
+    return \@users;
+}
+
 sub fetch_edusers {
     my $self = shift;
     my @users;
