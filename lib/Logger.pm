@@ -15,7 +15,7 @@ has 'verbose' => (is => 'ro', isa=> 'Bool', 'default' => '0');
 sub make_log{
 	my $self = shift;
 	my $entry = shift;
-	if (! $entry =~ /^DEBUG.*/){
+	# if (! $entry =~ /^DEBUG.*/){
 		my $now = time();
 		my $ts = strftime('%Y-%m-%dT%H:%M:%S', localtime($now));
 		open(FH, '>>', $self->filename) or die("Could not open logfile ".$self->filename.": $!");
@@ -24,7 +24,7 @@ sub make_log{
 		if ($self->verbose){
 			print "$entry\n";
 		}
-	}
+	# }
 
 }
 
