@@ -56,7 +56,7 @@ augment 'BUILD' => sub {
                 die("Kan geen site id vinden voor ",$self->_get_site_naam);
             }
         }else{
-            die("Geen naam en geen id, ik geef het op.");
+            die("Geen sitenaam en geen id, ik geef het op.");
         }
     }
     # Nu we de site id hebben verder met de list
@@ -68,10 +68,10 @@ augment 'BUILD' => sub {
             if ($list_id){
                 $self->_set_list_id($list_id);
             }else{
-                die("Kan geen list id vinden voor $self->_get_list_naam");
+                die("Kan geen list id vinden voor ",$self->_get_list_naam);
             }
         }else{
-            die("Geen naam en geen id, ik geef het op.");
+            die("Geen lijstnaam en geen id, ik geef het op.");
         }
     }
 };
@@ -124,6 +124,48 @@ sub list_id_by_naam {
         warn("Kan geen list id vinden voor ",$self->_get_list_naam," zie ook de console voor fouten.");
         return 0;
     }
+}
+
+sub list_items {
+	my $self = shift;
+    my $fields = shift;
+    my $filter = shift;
+	my @items;
+
+	my @parameters;
+    push(@parameters,$fields) if ($fields);
+    push(@parameters,$filter) if ($filter);
+	# compose an URL
+	my $url = $self->_get_graph_endpoint . '/v1.0/sites/';
+	$url .= $self->_get_site_id;
+	$url .= '/lists/';
+	$url .= $self->_get_list_id;
+	$url .= '/items?';
+    $url .= join('&',@parameters);
+    #expand=fields&filter=fields/StatusLookupId eq \'1\'';
+	#$url .= '/items?expand=fields(select=Title,StatusLookupId,id)&filter=fields/StatusLookupId eq \'1\'';
+	#$url .= '/items?expand=fields(select=Title,StatusLookupId)&filter=startswith(fields/Title, \'Uit dienst:\')';
+	# Hier komt een collectie op terug dus getList gebruiken
+	my $result = $self->fetch_list($url,\@items);
+	my $return;
+	foreach my $ticket (@items){
+        while (my($fieldname,$fieldcontent) = each %{$ticket->{'fields'}}){
+            #say "$ticket->{'id'} $fieldname $fieldcontent";
+		    $return->{$ticket->{'id'}}->{$fieldname} = $fieldcontent;
+        }
+	}
+	return $return;
+}
+
+sub list_item_create {
+    my $self = shift;
+    my $payload = shift;
+	my $url = $self->_get_graph_endpoint . '/v1.0/sites/';
+	$url .= $self->_get_site_id;
+	$url .= '/lists/';
+	$url .= $self->_get_list_id;
+	$url .= '/items';
+    my $result = $self->callAPI($url,'POST',$payload);
 }
 
 __PACKAGE__->meta->make_immutable;
