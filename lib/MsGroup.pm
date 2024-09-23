@@ -54,7 +54,7 @@ sub group_fetch_owners {
 }
 
 sub group_fetch_members {
-	my $self = shift;							# get a reference to the object itself
+	my $self = shift;						# get a reference to the object itself
 	my @members;								# an array to hold the result
 	my @parameters;
     push(@parameters,$self->_get_filter) if ($self->_get_filter);
