@@ -61,6 +61,7 @@ sub group_fetch_members {
     push(@parameters,$self->_get_select) if ($self->_get_select);
 	# compose an URL
     my $url = $self->_get_graph_endpoint . "/v1.0/groups/".$self->_get_id."/members/?". join( '&', @parameters);
+	#say $url;
 	$self->fetch_list($url, \@members); 
 	return  \@members; # return a reference to the resul
 	
