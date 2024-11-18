@@ -62,7 +62,6 @@ sub user_groups {
 sub user_update {
 	my $self = shift;
 	my $payload = shift;
-    my @parameters;
 
     my $url = $self->_get_graph_endpoint . '/v1.0/users/' . $self->_get_id;
 	my $result = $self->callAPI($url,'PATCH',$payload);
