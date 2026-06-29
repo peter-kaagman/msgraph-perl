@@ -11,7 +11,7 @@ use POSIX qw(strftime);
 use Getopt::Long;
 use lib "$FindBin::Bin/lib";
 
-use MsUser;
+use MsUsers;
 use Logger;
 
 
@@ -53,13 +53,19 @@ my $session = MsUser->new(
 	'tenant_id'      => $config{'TENANT_ID'},
 	'login_endpoint' => $config{'LOGIN_ENDPOINT'},
 	'graph_endpoint' => $config{'GRAPH_ENDPOINT'},
-	'user'           => $user,
+	'filter'         => "\$filter=onPremisesSamAccountName eq '$user'",
+	'select'         => '\$select=id,userPrincipalName,onPremisesSamAccountName',
 );
 
 if ($session->_get_access_token){
-	my $UserInfo = $session->fetch_user();
-	$logger->make_log("$user fetched.");
-    $logger->make_log("userPrincipalName: ".$UserInfo->{'userPrincipalName'});
+	my $users = $session->users_fetch(1);
+	if (@{$users}){
+		my $user_info = $users->[0];
+		$logger->make_log("$user fetched.");
+		$logger->make_log("userPrincipalName: ".$user_info->{'userPrincipalName'});
+	}else{
+		$logger->make_log("No user found for samAccountName: $user");
+	}
 }else{
 	print "No token!\n";
 }

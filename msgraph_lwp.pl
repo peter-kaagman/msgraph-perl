@@ -11,6 +11,7 @@ use POSIX qw(strftime);
 use Getopt::Long;
 use lib "$FindBin::Bin/lib";
 
+use MsGroup;
 use MsGroups;
 use Logger;
 
@@ -61,20 +62,35 @@ my $session = MsGroups->new(
 	'tenant_id'      => $config{'TENANT_ID'},
 	'login_endpoint' => $config{'LOGIN_ENDPOINT'},
 	'graph_endpoint' => $config{'GRAPH_ENDPOINT'},
-	'blaat' => $config{'GRAPH_ENDPOINT'},
 	'filter'         => $filter,
 );
 
 if ($session->_get_access_token){
-	my $groups = $session->fetch_groups();
+	my $groups = $session->groups_fetch();
 	my $count = scalar @$groups;
 	$logger->make_log("$count groups fetched.");
 	while (my ($i, $group) = each @{$groups}){
 		$logger->make_log("$$group{'id'} => $$group{'displayName'}");
 	}
 
-	if ($no_owner){ # Geen idee waarom dit hier staat, is geen functionaliteit voor in de lib namelijk
-		$groups = $session->fetch_groups_no_owner($groups);
+	if ($no_owner){
+		my @groups_without_owner;
+		foreach my $group (@{$groups}){
+			my $group_session = MsGroup->new(
+				'app_id'         => $config{'APP_ID'},
+				'app_secret'     => $config{'APP_SECRET'},
+				'tenant_id'      => $config{'TENANT_ID'},
+				'login_endpoint' => $config{'LOGIN_ENDPOINT'},
+				'graph_endpoint' => $config{'GRAPH_ENDPOINT'},
+				'access_token'   => $session->_get_access_token,
+				'token_expires'  => $session->_get_token_expires,
+				'id'             => $group->{'id'},
+			);
+			my $owners = $group_session->group_fetch_owners();
+			push @groups_without_owner, $group if scalar @{$owners} == 0;
+		}
+
+		$groups = \@groups_without_owner;
 		$count = scalar @$groups;
 		$logger->make_log("$count Groups without owner.");
 		while (my ($i, $group) = each @{$groups}){
